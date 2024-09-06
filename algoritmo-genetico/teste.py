@@ -37,9 +37,13 @@ def tournament_selection(pop, fitness, k=3):
 # Função de crossover
 def crossover(parent1, parent2):
     if np.random.rand() < crossover_rate:
-        point = np.random.randint(1, n_dimensions)
-        child1 = np.concatenate([parent1[:point], parent2[point:]])
-        child2 = np.concatenate([parent2[:point], parent1[point:]])
+        a = np.random.rand()
+
+        child1 = a * parent1 + (1 - a) * parent2
+        child2 = a * parent2 + (1 - a) * parent1
+
+        child1 = np.clip(child1, lower_bound, upper_bound)
+        child2 = np.clip(child2, lower_bound, upper_bound)
         return child1, child2
     return parent1, parent2
 
@@ -54,12 +58,16 @@ def mutate(individual):
 
 # Guardando os melhores fitnesses e valores da função objetivo ao longo das gerações
 best_fitness_history = []
+worst_fitness_history = []
 best_individual_history = []
+average_fitness_history = []
 
 # Algoritmo genético
 for generation in range(num_generations):
     # Avaliação da população
     fitness = evaluate_population(population)
+    average_fitness = np.mean(fitness)
+    average_fitness_history.append(average_fitness)
     
     # Seleção
     population = tournament_selection(population, fitness)
@@ -79,9 +87,11 @@ for generation in range(num_generations):
     
     # Melhor indivíduo da geração
     best_fitness = np.max(fitness)
+    worst_fitness = np.min(fitness)
     best_individual = population[np.argmax(fitness)]
     
     best_fitness_history.append(best_fitness)
+    worst_fitness_history.append(worst_fitness)
     best_individual_history.append(best_individual)
     
     print(f"Geração {generation + 1}: Melhor Fitness = {best_fitness}, Melhor Indivíduo = {best_individual}")
@@ -107,16 +117,22 @@ print(f"\nMelhor solução encontrada: {best_individual}, Fitness: {best_fitness
 print("\n--- Informações do Algoritmo Genético ---")
 print(f"Tamanho da População: {pop_size}")
 print("Forma de Seleção: Seleção por Torneio")
-print("Tipo de Crossover: Crossover de um ponto")
+print("Tipo de Crossover: Crossover aritmético")
 print(f"Taxa de Crossover: {crossover_rate}")
 print(f"Taxa de Mutação: {mutation_rate}")
+
 
 # Gráficos
 # 1. Gráfico da função de fitness ao longo das gerações
 plt.figure(figsize=(14, 6))
-
+plt.ylim(0, None)
 plt.subplot(1, 2, 1)
-plt.plot(range(1, num_generations + 1), best_fitness_history, label='Fitness')
+# Plotando o histórico do melhor fitness
+plt.plot(range(1, num_generations + 1), best_fitness_history, label='Melhor Fitness', color='blue')
+
+# Plotando o histórico do pior fitness
+plt.plot(range(1, num_generations+ 1), worst_fitness_history, label='Pior Fitness', color='red')
+plt.plot(range(1, num_generations + 1), average_fitness_history, label='Fitness Médio', color='green')
 plt.title('Evolução da Fitness')
 plt.xlabel('Gerações')
 plt.ylabel('Fitness')

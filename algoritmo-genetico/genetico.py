@@ -37,9 +37,13 @@ def tournament_selection(pop, fitness, k=3):
 # Função de crossover
 def crossover(parent1, parent2):
     if np.random.rand() < crossover_rate:
-        point = np.random.randint(1, n_dimensions)
-        child1 = np.concatenate([parent1[:point], parent2[point:]])
-        child2 = np.concatenate([parent2[:point], parent1[point:]])
+        #point = np.random.randint(1, n_dimensions)
+        #child1 = np.concatenate([parent1[:point], parent2[point:]])
+        #child2 = np.concatenate([parent2[:point], parent1[point:]])
+        a = np.random.rand()
+
+        child1 = a * parent1 + (1 - a) * parent2
+        child2 = a * parent2 + (1 - a) * parent1
         return child1, child2
     return parent1, parent2
 
